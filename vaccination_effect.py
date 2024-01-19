@@ -7,6 +7,7 @@ import seaborn as sns
 import matplotlib.pyplot as plt
 import streamlit as st
 import plotly.express as px
+from sklearn.preprocessing import MinMaxScaler
 from sklearn.model_selection import train_test_split
 from sklearn.ensemble import RandomForestRegressor
 from sklearn.metrics import mean_squared_error, r2_score
@@ -159,3 +160,46 @@ ax[1,1].set_xlabel('measles')
 ax[1,1].set_ylabel('tuberculosis_cases')
 
 plt.show()
+
+#---------------------------Before modeling--------------------------------------------------------
+#Make a new copy of 'infectious_diseases_df'
+infectious_diseases_new_copy_df = infectious_diseases_df.copy()
+
+#Make a new copy of 'vaccination_df'
+vaccination_df_new_copy_df = vaccination_df.copy()
+
+#Change each number of vaccinations as a rate of relevant population
+vaccine_columns = ['HeoB3', 'DTP', 'polio', 'measles', 'Hib3', 'rubella', 'rotavirus', 'BCG']
+
+for column in vaccine_columns:
+    vaccination_df_new_copy_df[column] = vaccination_df_new_copy_df[column] / vaccination_df_new_copy_df['population'] 
+
+vaccination_df_new_copy_df.head(1)
+
+#Scale down the number of each disease cases to a normal rate using 'MinMaxScaler in preprocessing'
+columns_to_normalize = infectious_diseases_new_copy_df.columns[2:]
+scaler = MinMaxScaler()
+infectious_diseases_new_copy_df[columns_to_normalize] = scaler.fit_transform(infectious_diseases_new_copy_df[columns_to_normalize])
+
+#Add a new column to 'infectious_diseases_new_copy_df' with sum of all diseases in a year
+infectious_diseases_new_copy_df['total_disease_rate'] = infectious_diseases_new_copy_df[['yaws_cases', 'polio_cases',
+       'guinea_worm_disease_cases', 'rabies_cases', 'malaria_cases',
+       'HIV_AIDS_cases', 'tuberculosis_cases', 'smallpox_cases',
+       'cholera_cases']].sum(axis=1)
+
+infectious_diseases_new_copy_df.head(1)
+
+#Merge 'infectious_diseases_new_copy_df' and 'vaccination_df_new_copy_df'
+merged_scale_down_df = pd.merge(infectious_diseases_new_copy_df, vaccination_df_new_copy_df, on=['country','year'])
+
+#Drop disease cases from 'merged_scale_down_df'
+merged_scale_down_df.drop(['yaws_cases', 'polio_cases',
+       'guinea_worm_disease_cases', 'rabies_cases', 'malaria_cases',
+       'HIV_AIDS_cases', 'tuberculosis_cases', 'smallpox_cases',
+       'cholera_cases'], axis = 1, inplace = True)
+
+#Group 'merged_scale_down_df' to have data relevant to each year
+disease_vaccine_scale_down_df = merged_scale_down_df.groupby('year').sum().reset_index()
+
+#Drop 'population' column
+disease_vaccine_scale_down_df.drop('population', axis = 1, inplace = True)
