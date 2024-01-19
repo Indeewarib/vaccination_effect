@@ -92,3 +92,70 @@ infectious_diseases_df.head()
 vaccination_df.info()
 vaccination_df.head()
 
+#---------------------------Further exploration with plots------------------------------------------------
+#Plot number of cases of  each disease in each year using bar plot
+for i in infectious_diseases_df.columns[2:]:
+  fig, ax = plt.subplots(figsize=(12, 5))
+  plt.title(i)
+
+  sns.barplot(data=infectious_diseases_df, x = 'year', y=i, ci = None)
+  plt.xticks(rotation = 90)
+  plt.xlabel('Year', size = 2)
+  plt.ylabel('Number of Cases')
+  plt.show()
+
+#Plot number of cases of  each disease in each year using choropleth 
+#----made a copy from 'infectious_diseases_df' to use in choropleth map
+infectious_diseases_df_copy = infectious_diseases_df.copy()
+
+#----sort the copy of the dataframe by 'year' and 'country'
+infectious_diseases_df_copy.sort_values(
+    ["year", "country"], axis=0,
+    ascending=True, inplace=True
+)
+
+#----plot the choropleth
+for i in infectious_diseases_df_copy.columns[2:]:
+   fig = px.choropleth(infectious_diseases_df_copy,locations='country', locationmode='country names',
+                       color = i,hover_name="country", animation_frame="year",
+                       title = f'{i} - Choropleth', color_continuous_scale='Viridis_r')
+   fig.show()
+
+#Plot vaccinations rate over year using line plot
+for i in vaccination_df.columns[3:]:
+  fig, ax = plt.subplots(figsize=(10, 4))
+  plt.title(i)
+
+  sns.lineplot(data=vaccination_df, x = 'year', y=i, ci = None)
+  plt.xticks(rotation = 90)
+  plt.xlabel('Year', size = 2)
+  plt.ylabel('Vaccination_rate')
+  plt.show()
+
+#Show the correlation between vaccination rates and disease cases using heat map
+#----merge the two tables
+merged_vaccine_disease_df = pd.merge(infectious_diseases_df, vaccination_df, on=['country','year'])
+
+#----plot heat map
+plt.figure(figsize=(15, 10))
+sns.heatmap(merged_vaccine_disease_df.corr(),annot = True)
+
+#Show relationships between some vaccination rates and disease cases using scatter plots
+fig, ax = plt.subplots(2,2,figsize = (10,8))
+ax[0,0].scatter(merged_vaccine_disease_df.BCG,merged_vaccine_disease_df.tuberculosis_cases)
+ax[0,0].set_xlabel('BCG')
+ax[0,0].set_ylabel('tuberculosis_cases')
+
+ax[0,1].scatter(merged_vaccine_disease_df.HIV_AIDS_cases,merged_vaccine_disease_df.measles)
+ax[0,1].set_xlabel('measles')
+ax[0,1].set_ylabel('HIV_AIDS_cases')
+
+ax[1,0].scatter(merged_vaccine_disease_df.BCG,merged_vaccine_disease_df.HIV_AIDS_cases)
+ax[1,0].set_xlabel('BCG')
+ax[1,0].set_ylabel('HIV_AIDS_cases')
+
+ax[1,1].scatter(merged_vaccine_disease_df.measles,merged_vaccine_disease_df.tuberculosis_cases)
+ax[1,1].set_xlabel('measles')
+ax[1,1].set_ylabel('tuberculosis_cases')
+
+plt.show()
