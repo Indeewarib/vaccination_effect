@@ -20,7 +20,7 @@ The project contains the following files:
 ### Useful information
 - The ```number_of_vaccinated_one_year_olds``` dataset contains the rate of basic vaccinations given only to one year olds around the world
 
-## Machine Learning
+### Machine Learning
 The main goal is to check the impact of basic vaccines have on spread of infectious diseases
 The target variable is: ```total_disease_rate```
 The variables affect affect include: ```['HeoB3', 'DTP', 'polio', 'measles', 'Hib3', 'rubella', 'rotavirus', 'BCG']```
