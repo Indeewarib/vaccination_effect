@@ -138,8 +138,8 @@ for i in vaccination_df.columns[3:]:
 merged_vaccine_disease_df = pd.merge(infectious_diseases_df, vaccination_df, on=['country','year'])
 
 #----plot heat map
-plt.figure(figsize=(15, 10))
-sns.heatmap(merged_vaccine_disease_df.corr(),annot = True)
+#plt.figure(figsize=(15, 10))
+#sns.heatmap(merged_vaccine_disease_df.corr(), annot = True)
 
 #Show relationships between some vaccination rates and disease cases using scatter plots
 fig, ax = plt.subplots(2,2,figsize = (10,8))
@@ -203,3 +203,35 @@ disease_vaccine_scale_down_df = merged_scale_down_df.groupby('year').sum().reset
 
 #Drop 'population' column
 disease_vaccine_scale_down_df.drop('population', axis = 1, inplace = True)
+
+#---------------------------Modeling-------------------------------------------------------------------
+#Set X values as the values of each vaccine rates column and drop the 'total_disease_rate'
+X = disease_vaccine_scale_down_df.drop(['total_disease_rate'], axis=1) 
+
+#Define the target variable y by setting 'total_disease_rate' 
+y = disease_vaccine_scale_down_df['total_disease_rate']  
+
+#Two lists to store each Mean Squared Error and Squared Error relevant to each random state
+accuracies = []
+accuracies_ = []
+
+#Split the data into train and test sets and check them under five different random states
+for random_state in [1, 23, 42, 15, 56]:
+  X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state = random_state)
+
+#Initialize and train the model
+  model = RandomForestRegressor() 
+
+#Fit the model to train sets
+  model.fit(X_train, y_train)
+
+#Get predicted values for y
+  y_predictions = model.predict(X_test)
+
+#Evaluate the model
+  accuracies.append(mean_squared_error(y_test, y_predictions))
+  accuracies_.append(r2_score(y_test, y_predictions))
+
+#Display the lists of Mean Squared Errors and Squared Error
+print('Mean Squared Errors:', accuracies)
+print(' Squared Error:', accuracies_)
