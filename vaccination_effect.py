@@ -138,8 +138,8 @@ for i in vaccination_df.columns[3:]:
 merged_vaccine_disease_df = pd.merge(infectious_diseases_df, vaccination_df, on=['country','year'])
 
 #----plot heat map
-#plt.figure(figsize=(15, 10))
-#sns.heatmap(merged_vaccine_disease_df.corr(), annot = True)
+plt.figure(figsize=(15, 10))
+sns.heatmap(merged_vaccine_disease_df.drop('country', axis = 1).corr(), annot = True)
 
 #Show relationships between some vaccination rates and disease cases using scatter plots
 fig, ax = plt.subplots(2,2,figsize = (10,8))
