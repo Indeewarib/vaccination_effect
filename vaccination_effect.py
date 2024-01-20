@@ -202,7 +202,7 @@ merged_scale_down_df.drop(['yaws_cases', 'polio_cases',
 disease_vaccine_scale_down_df = merged_scale_down_df.groupby('year').sum().reset_index()
 
 #Drop 'population' column
-disease_vaccine_scale_down_df.drop('population', axis = 1, inplace = True)
+disease_vaccine_scale_down_df.drop(['population','country'], axis = 1, inplace = True)
 
 #---------------------------Modeling-------------------------------------------------------------------
 #Set X values as the values of each vaccine rates column and drop the 'total_disease_rate'
