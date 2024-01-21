@@ -223,10 +223,10 @@ infectious_diseases_new_copy_df.head(1)
 merged_scale_down_df = pd.merge(infectious_diseases_new_copy_df, vaccination_df_new_copy_df, on=['country','year'])
 
 #Drop disease cases from 'merged_scale_down_df'
-merged_scale_down_df.drop(['yaws_cases', 'polio_cases',
-       'guinea_worm_disease_cases', 'rabies_cases', 'malaria_cases',
-       'HIV_AIDS_cases', 'tuberculosis_cases', 'smallpox_cases',
-       'cholera_cases'], axis = 1, inplace = True)
+#merged_scale_down_df.drop(['yaws_cases', 'polio_cases',
+ #      'guinea_worm_disease_cases', 'rabies_cases', 'malaria_cases',
+  #     'HIV_AIDS_cases', 'tuberculosis_cases', 'smallpox_cases',
+   #    'cholera_cases'], axis = 1, inplace = True)
 
 #Group 'merged_scale_down_df' to have data relevant to each year
 disease_vaccine_scale_down_df = merged_scale_down_df.groupby('year').sum().reset_index()
@@ -281,33 +281,47 @@ if st.sidebar.checkbox('Find informations of each year'):
 
 
 #---------------------------Modeling-------------------------------------------------------------------
-#Set X values as the values of each vaccine rates column and drop the 'total_disease_rate'
-X = disease_vaccine_scale_down_df.drop(['total_disease_rate'], axis=1) 
+add_header('Modeling - machine learning application')
+with st.expander('Show model'):
+    st.subheader('The model predicting the effect of vaccination rates on total disease cases')
+   
+#Initialize and train the model
+    model = RandomForestRegressor()  
 
-#Define the target variable y by setting 'total_disease_rate' 
-y = disease_vaccine_scale_down_df['total_disease_rate']  
+    choices_x = st.multiselect('Select the vaccine/vaccines to construct the model:', ["HeoB3", "DTP", "polio",
+                                                                            "measles", "Hib3", "rubella","rotavirus","BCG"])
+
+    choices_y = st.multiselect('Select the disease case/cases to construct the model:', ["yaws_cases", "polio_cases","guinea_worm_disease_cases","rabies_cases","malaria_cases",
+                                                                            "HIV_AIDS_cases", "tuberculosis_cases", "smallpox_cases",
+                                                                            "cholera_cases","total_disease_rate"])
+
+    test_size = st.slider('Test size: ', min_value=0.1, max_value=0.9, step =0.1)
+
+    if len(choices_x) > 0 and len(choices_x) > 0 and st.button('RUN MODEL'):
+        with st.spinner('Training...'):
+
+#Set X and y values 
+            X = disease_vaccine_scale_down_df[choices_x]
+            y = disease_vaccine_scale_down_df[choices_y]  
 
 #Two lists to store each Mean Squared Error and Squared Error relevant to each random state
-accuracies = []
-accuracies_ = []
+            accuracies = []
+            accuracies_ = []
 
 #Split the data into train and test sets and check them under five different random states
-for random_state in [1, 23, 42, 15, 56]:
-  X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state = random_state)
-
-#Initialize and train the model
-  model = RandomForestRegressor() 
+            for random_state in [1, 23, 42, 15, 56]:
+                X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=test_size, random_state = random_state)
 
 #Fit the model to train sets
-  model.fit(X_train, y_train)
+                model.fit(X_train[choices_x] , y_train[choices_y])
 
 #Get predicted values for y
-  y_predictions = model.predict(X_test)
+                y_predictions = model.predict(X_test)
 
 #Evaluate the model
-  accuracies.append(mean_squared_error(y_test, y_predictions))
-  accuracies_.append(r2_score(y_test, y_predictions))
+                accuracies.append(mean_squared_error(y_test, y_predictions))
+                accuracies_.append(r2_score(y_test, y_predictions))
 
 #Display the lists of Mean Squared Errors and Squared Error
-print('Mean Squared Errors:', accuracies)
-print(' Squared Error:', accuracies_)
+            st.write('Mean Squared Errors:', accuracies)
+            st.write(' Squared Error:', accuracies_)
