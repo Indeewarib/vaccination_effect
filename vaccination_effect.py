@@ -263,6 +263,23 @@ if st.sidebar.checkbox('Display final datasets'):
       write_content('Step 01: Droped **Code** column')
       write_content('Step 02: Replaced NaN values with zero')
 
+#Add side bar to check more information by filtering
+if st.sidebar.checkbox('Find informations of each year'):
+
+#Add a text to include what can be checked
+    write_content('Check the total disease rate and each vaccine count of years')
+
+#Using text input in the web page
+    year_checks = st.text_input('Year', placeholder="1990")
+
+#Creating regular expression from text written by year
+    year_regexp = f'.*{year_checks}.*'
+
+#Printing data filtered using regular expression
+    disease_vaccine_scale_down_df['year'] = disease_vaccine_scale_down_df['year'].astype(str)
+    write_df(disease_vaccine_scale_down_df[disease_vaccine_scale_down_df['year'].str.match(year_regexp)])
+
+
 #---------------------------Modeling-------------------------------------------------------------------
 #Set X values as the values of each vaccine rates column and drop the 'total_disease_rate'
 X = disease_vaccine_scale_down_df.drop(['total_disease_rate'], axis=1) 
