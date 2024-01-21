@@ -48,14 +48,23 @@ def add_markdown(text):
 def add_captions(text):
     st.caption(text)
 
-
-#Function to include headers in webpage
-def add_header(text):
-    st.header(text)
-
 #===================
 # Main
 #===================
+
+#Initializing web page
+add_title('Vaccination Effect')
+add_subheader('The Impact of Basic Vaccinations on Infectious Disease Spread')
+write_content('''This project aims to investigate the potential impact of basic vaccinations, such as polio 
+                for one-year-olds, on the spread of infectious diseases. The ultimate goal is to 
+                build a model that can predict the effect of basic vaccinations on the spread of infectious diseases and 
+                potentially anticipate the impact of vaccination data on future diseases, whether it has an effect on controlling them.''')
+add_markdown('**Check dataset**:')
+add_markdown("[Click here](https://www.kaggle.com/datasets/imtkaggleteam/pandemics-in-world?select=2-+the-worlds-number-of-vaccinated-one-year-olds.csv)")
+write_content('For more information read ```README.md``` file')
+
+st.sidebar.subheader('Settings')
+write_content('Check **sidebar menu** for more advance features')
 
 #---------------------------Read and explore datasets-----------------------------------------------------
 full_path = os.path.realpath(__file__)
@@ -94,16 +103,23 @@ vaccination_df.info()
 vaccination_df.head()
 
 #---------------------------Further exploration with plots------------------------------------------------
-#Plot number of cases of  each disease in each year using bar plot
-for i in infectious_diseases_df.columns[2:]:
-  fig, ax = plt.subplots(figsize=(12, 5))
-  plt.title(i)
+#Visualize plots in webpage
+add_header('Visualize plots')
+write_content('Here includes all plots used to explore the datasets')
 
-  sns.barplot(data=infectious_diseases_df, x = 'year', y=i, ci = None)
-  plt.xticks(rotation = 90)
-  plt.xlabel('Year', size = 2)
-  plt.ylabel('Number of Cases')
-  plt.show()
+with st.expander('Show bar plots of number of cases of  each disease recorded each year'):
+#Plot number of cases of  each disease in each year using bar plot
+    for i in infectious_diseases_df.columns[2:]:
+        fig, ax = plt.subplots(figsize=(12, 5))
+        plt.title(i)
+
+        sns.barplot(data=infectious_diseases_df, x = 'year', y=i, ci = None)
+        plt.xticks(rotation = 90)
+        plt.xlabel('Year', size = 2)
+        plt.ylabel('Number of Cases')
+        plt.show()
+        st.pyplot(fig)
+        add_captions(f'Number of {i} each year')
 
 #Plot number of cases of  each disease in each year using choropleth 
 #----made a copy from 'infectious_diseases_df' to use in choropleth map
@@ -115,51 +131,65 @@ infectious_diseases_df_copy.sort_values(
     ascending=True, inplace=True
 )
 
+#Visualize choropleth maps
+add_markdown('**Choropleth maps of each disease cases changing in each year**')
+#Include a check box to check choropleth map when needs
+if st.checkbox('Check choropleth maps of each disease'):
 #----plot the choropleth
-for i in infectious_diseases_df_copy.columns[2:]:
-   fig = px.choropleth(infectious_diseases_df_copy,locations='country', locationmode='country names',
+    for i in infectious_diseases_df_copy.columns[2:]:
+        fig = px.choropleth(infectious_diseases_df_copy,locations='country', locationmode='country names',
                        color = i,hover_name="country", animation_frame="year",
                        title = f'{i} - Choropleth', color_continuous_scale='Viridis_r')
-   fig.show()
+        fig.show()
 
+#Visualize line plots
+with st.expander('Show line plots of vaccinations rate over years'):
 #Plot vaccinations rate over year using line plot
-for i in vaccination_df.columns[3:]:
-  fig, ax = plt.subplots(figsize=(10, 4))
-  plt.title(i)
+    for i in vaccination_df.columns[3:]:
+        fig, ax = plt.subplots(figsize=(10, 4))
+        plt.title(i)
 
-  sns.lineplot(data=vaccination_df, x = 'year', y=i, ci = None)
-  plt.xticks(rotation = 90)
-  plt.xlabel('Year', size = 2)
-  plt.ylabel('Vaccination_rate')
-  plt.show()
+        sns.lineplot(data=vaccination_df, x = 'year', y=i, ci = None)
+        plt.xticks(rotation = 90)
+        plt.xlabel('Year', size = 2)
+        plt.ylabel('Vaccination_rate')
+        plt.show()
+        st.pyplot(fig)
+        add_captions(f'Change of {i} rates each year')
 
 #Show the correlation between vaccination rates and disease cases using heat map
 #----merge the two tables
 merged_vaccine_disease_df = pd.merge(infectious_diseases_df, vaccination_df, on=['country','year'])
 
+with st.expander('Show heatmap to check correlation among vaccines and disease rates'):
 #----plot heat map
-plt.figure(figsize=(15, 10))
-sns.heatmap(merged_vaccine_disease_df.drop('country', axis = 1).corr(), annot = True)
+    fig = plt.figure(figsize=(15, 10))
+    sns.heatmap(merged_vaccine_disease_df.drop('country', axis = 1).corr(), annot = True)
+    st.pyplot(fig)
+    add_captions(f'Correlation among diseases and vaccine rates')
 
+with st.expander('Show scatter plots'):
 #Show relationships between some vaccination rates and disease cases using scatter plots
-fig, ax = plt.subplots(2,2,figsize = (10,8))
-ax[0,0].scatter(merged_vaccine_disease_df.BCG,merged_vaccine_disease_df.tuberculosis_cases)
-ax[0,0].set_xlabel('BCG')
-ax[0,0].set_ylabel('tuberculosis_cases')
+    fig, ax = plt.subplots(2,2,figsize = (10,8))
+    ax[0,0].scatter(merged_vaccine_disease_df.BCG,merged_vaccine_disease_df.tuberculosis_cases)
+    ax[0,0].set_xlabel('BCG')
+    ax[0,0].set_ylabel('tuberculosis_cases')
 
-ax[0,1].scatter(merged_vaccine_disease_df.HIV_AIDS_cases,merged_vaccine_disease_df.measles)
-ax[0,1].set_xlabel('measles')
-ax[0,1].set_ylabel('HIV_AIDS_cases')
+    ax[0,1].scatter(merged_vaccine_disease_df.HIV_AIDS_cases,merged_vaccine_disease_df.measles)
+    ax[0,1].set_xlabel('measles')
+    ax[0,1].set_ylabel('HIV_AIDS_cases')
 
-ax[1,0].scatter(merged_vaccine_disease_df.BCG,merged_vaccine_disease_df.HIV_AIDS_cases)
-ax[1,0].set_xlabel('BCG')
-ax[1,0].set_ylabel('HIV_AIDS_cases')
+    ax[1,0].scatter(merged_vaccine_disease_df.BCG,merged_vaccine_disease_df.HIV_AIDS_cases)
+    ax[1,0].set_xlabel('BCG')
+    ax[1,0].set_ylabel('HIV_AIDS_cases')
 
-ax[1,1].scatter(merged_vaccine_disease_df.measles,merged_vaccine_disease_df.tuberculosis_cases)
-ax[1,1].set_xlabel('measles')
-ax[1,1].set_ylabel('tuberculosis_cases')
+    ax[1,1].scatter(merged_vaccine_disease_df.measles,merged_vaccine_disease_df.tuberculosis_cases)
+    ax[1,1].set_xlabel('measles')
+    ax[1,1].set_ylabel('tuberculosis_cases')
 
-plt.show()
+    plt.show()
+    st.pyplot(fig)
+    add_captions('Relationship between BCG,measles vaccine rates and HIV,tuberculosis disease cases')
 
 #---------------------------Before modeling--------------------------------------------------------
 #Make a new copy of 'infectious_diseases_df'
@@ -203,6 +233,35 @@ disease_vaccine_scale_down_df = merged_scale_down_df.groupby('year').sum().reset
 
 #Drop 'population' column
 disease_vaccine_scale_down_df.drop(['population','country'], axis = 1, inplace = True)
+
+#Add a checkbox to sidebar menu to check final datasets if needed
+if st.sidebar.checkbox('Display final datasets'):
+    add_header('Final datasets')
+
+#Add an expander with each dataset to check how the dataset came
+    add_subheader('Final scaled down dataset')
+    write_content('Includes data on each vaccine rate and total infectious disease cases in each year')
+    write_df(disease_vaccine_scale_down_df)
+    with st.expander('Show steps done'):
+      write_content('Step 01: Scaled down ```infectious_diseases_df``` using **MinMaxScaler**')
+      write_content('Step 02: Change each vaccine rate as a rate of **Population** in ```vaccination_df```')
+      write_content('Step 03: Add the column **total_disease_rate** including sum of all disease cases reported each year')
+      write_content('Step 04: Mereged ```infectious_diseases_df``` and ```vaccination_df``` on **country** and **year** and drop all disease cases columns')
+      write_content('Step 05: Grouped ```disease_vaccine_scale_down_df``` by **year**')  
+
+    add_subheader('Infectious diseases dataset')
+    write_content('Includes data of infectious disease cases in different countries and year')
+    write_df(infectious_diseases_df)
+    with st.expander('Show steps done'):
+      write_content('Step 01: Droped **Code** column')
+      write_content('Step 02: Replaced NaN values with zero')
+
+    add_subheader('Vaccination rates dataset')
+    write_content('Includes data of vaccine rates of one year olds in different countries and year')
+    write_df(vaccination_df)
+    with st.expander('Show steps done'):
+      write_content('Step 01: Droped **Code** column')
+      write_content('Step 02: Replaced NaN values with zero')
 
 #---------------------------Modeling-------------------------------------------------------------------
 #Set X values as the values of each vaccine rates column and drop the 'total_disease_rate'
