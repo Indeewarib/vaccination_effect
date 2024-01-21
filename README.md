@@ -2,7 +2,7 @@
 
 ## Understanding the Impact of Basic Vaccinations on Infectious Disease Spread
 ### Overview
-This project aims to investigate the potential impact of basic vaccinations, such as polio for one-year-olds, on the spread of infectious diseases, with a focus on diseases. By analyzing vaccination rates and the total reported cases of infectious diseases over a specific time period, seek to understand whether there is a correlation between the two factors. The ultimate goal is to build a model that can predict the effect of basic vaccinations on the spread of infectious diseases and potentially anticipate the impact of vaccination data on future diseases, whether it has an effect on controlling them.
+This project aims to investigate the potential impact of basic vaccinations, such as polio for one-year-olds, on the spread of infectious diseases. By analyzing vaccination rates and the total reported cases of infectious diseases over a specific time period, seek to understand whether there is a correlation between the two factors. The ultimate goal is to build a model that can predict the effect of basic vaccinations on the spread of infectious diseases and potentially anticipate the impact of vaccination data on future diseases, whether it has an effect on controlling them.
 
 To launch the project you need to satisfy the requirements present in ```requirements.txt``` file and run the following command: ```streamlit run .\vaccination_effect.py```
 
