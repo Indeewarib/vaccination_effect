@@ -115,6 +115,19 @@ vaccination_df.info()
 vaccination_df.head()
 
 #---------------------------Further exploration with plots------------------------------------------------
+#Show the correlation between vaccination rates and disease cases using heat map
+#----merge the two tables
+merged_vaccine_disease_df = pd.merge(infectious_diseases_df, vaccination_df, on=['country','year'])
+
+if st.sidebar.checkbox('Check correlation'):
+    add_markdown(':orange[The correlation among vaccine rates and disease cases]')
+    with st.expander('Show heatmap to check correlation among vaccines and disease rates'):
+#----plot heat map
+        fig = plt.figure(figsize=(15, 10))
+        sns.heatmap(merged_vaccine_disease_df.drop('country', axis = 1).corr(), annot = True)
+        st.pyplot(fig)
+        add_captions(f'Correlation among diseases and vaccine rates')
+
 #Visualize plots in webpage
 add_header('Visualize plots')
 write_content('Here includes all plots used to explore the datasets')
@@ -144,15 +157,15 @@ infectious_diseases_df_copy.sort_values(
 )
 
 #Visualize choropleth maps
-add_markdown('**Choropleth maps of each disease cases changing in each year**')
+with st.expander('Show choropleth maps of each disease cases changing over each year'):
 #Include a check box to check choropleth map when needs
-if st.checkbox('Check choropleth maps of each disease'):
+    if st.checkbox('Check choropleth maps of each disease'):
 #----plot the choropleth
-    for i in infectious_diseases_df_copy.columns[2:]:
-        fig = px.choropleth(infectious_diseases_df_copy,locations='country', locationmode='country names',
+        for i in infectious_diseases_df_copy.columns[2:]:
+            fig = px.choropleth(infectious_diseases_df_copy,locations='country', locationmode='country names',
                        color = i,hover_name="country", animation_frame="year",
                        title = f'{i} - Choropleth', color_continuous_scale='Viridis_r')
-        fig.show()
+            fig.show()
 
 #Visualize line plots
 with st.expander('Show line plots of vaccinations rate over years'):
@@ -168,17 +181,6 @@ with st.expander('Show line plots of vaccinations rate over years'):
         plt.show()
         st.pyplot(fig)
         add_captions(f'Change of {i} rates each year')
-
-#Show the correlation between vaccination rates and disease cases using heat map
-#----merge the two tables
-merged_vaccine_disease_df = pd.merge(infectious_diseases_df, vaccination_df, on=['country','year'])
-
-with st.expander('Show heatmap to check correlation among vaccines and disease rates'):
-#----plot heat map
-    fig = plt.figure(figsize=(15, 10))
-    sns.heatmap(merged_vaccine_disease_df.drop('country', axis = 1).corr(), annot = True)
-    st.pyplot(fig)
-    add_captions(f'Correlation among diseases and vaccine rates')
 
 with st.expander('Show scatter plots'):
 #Show relationships between some vaccination rates and disease cases using scatter plots
