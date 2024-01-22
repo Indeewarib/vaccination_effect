@@ -73,13 +73,25 @@ project_folder = os.path.dirname(full_path)
 infectious_diseases_df = pd.read_csv(f'{project_folder}\\data\\number_of_cases_of_infectious_diseases.csv')
 vaccination_df = pd.read_csv(f'{project_folder}\\data\\number_of_vaccinated_one_year_olds.csv')
 
-infectious_diseases_df.info()
-infectious_diseases_df.describe()
-infectious_diseases_df.head()
+#Include information of raw datasets in side menu to check if need
+if st.sidebar.checkbox('Explore raw datasets'):
+    add_markdown(':orange[Explore raw infectious diseases dataset]')
+    with st.expander('Show infectious diseases dataset exploration'):
+        add_markdown(':red[info()]')
+        write_content(infectious_diseases_df.info())
+        add_markdown(':red[description()]')
+        write_content(infectious_diseases_df.describe())
+        add_markdown(':red[head()]')
+        write_content(infectious_diseases_df.head())
 
-vaccination_df.info()
-vaccination_df.describe()
-vaccination_df.head()
+    add_markdown(':orange[Explore raw vaccinations dataset]')
+    with st.expander('Show vaccinations dataset exploration'):
+        add_markdown(':red[info()]')
+        write_content(vaccination_df.info())
+        add_markdown(':red[description()]')
+        write_content(vaccination_df.describe())
+        add_markdown(':red[head()]')
+        write_content(vaccination_df.head())
 
 #---------------------------Clean datasets----------------------------------------------------------------
 
@@ -222,12 +234,6 @@ infectious_diseases_new_copy_df.head(1)
 #Merge 'infectious_diseases_new_copy_df' and 'vaccination_df_new_copy_df'
 merged_scale_down_df = pd.merge(infectious_diseases_new_copy_df, vaccination_df_new_copy_df, on=['country','year'])
 
-#Drop disease cases from 'merged_scale_down_df'
-#merged_scale_down_df.drop(['yaws_cases', 'polio_cases',
- #      'guinea_worm_disease_cases', 'rabies_cases', 'malaria_cases',
-  #     'HIV_AIDS_cases', 'tuberculosis_cases', 'smallpox_cases',
-   #    'cholera_cases'], axis = 1, inplace = True)
-
 #Group 'merged_scale_down_df' to have data relevant to each year
 disease_vaccine_scale_down_df = merged_scale_down_df.groupby('year').sum().reset_index()
 
@@ -264,7 +270,7 @@ if st.sidebar.checkbox('Display final datasets'):
       write_content('Step 02: Replaced NaN values with zero')
 
 #Add side bar to check more information by filtering
-if st.sidebar.checkbox('Find informations of each year'):
+if st.sidebar.checkbox('Find informations on each year records'):
 
 #Add a text to include what can be checked
     write_content('Check the total disease rate and each vaccine count of years')
