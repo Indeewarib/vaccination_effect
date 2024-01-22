@@ -293,7 +293,7 @@ add_header('Modeling - machine learning application')
 with st.expander('Show model'):
     st.subheader('The model predicting the effect of vaccination rates on total disease cases')
    
-#Initialize and train the model
+#Initialize and train the model,check each disease with vaccine rates separately if necessary
     model = RandomForestRegressor()  
 
     choices_x = st.multiselect('Select the vaccine/vaccines to construct the model:', ["HeoB3", "DTP", "polio",
